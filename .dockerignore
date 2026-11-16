@@ -1,0 +1,9 @@
+.git
+.github
+target
+dist/*
+!dist/selkies/
+!dist/selkies/pdfcraft-*.deb
+config
+documents
+*.log
