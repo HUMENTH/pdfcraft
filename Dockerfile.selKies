@@ -1,0 +1,31 @@
+# PDFCraft GUI on LinuxServer Selkies.
+# Build context: repository root; CI stages the upstream .deb in dist/selkies/.
+FROM ghcr.io/linuxserver/baseimage-selkies:ubunturesolute
+
+ENV TITLE="PDFCraft" \
+    PIXELFLUX_WAYLAND=true \
+    PDFCRAFT_SYSTEM_FONTS=0
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      libxkbcommon0 libvulkan1 libegl1 libwayland-client0 \
+      libx11-6 libx11-xcb1 libxcursor1 libxi6 libxrandr2 \
+      mesa-vulkan-drivers xdg-desktop-portal cups-client \
+      fontconfig fonts-dejavu-core && \
+    apt-get autoclean && \
+    rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
+
+COPY dist/selkies/pdfcraft-*-selkies-linux-aarch64.deb /tmp/pdfcraft.deb
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends /tmp/pdfcraft.deb && \
+    rm -f /tmp/pdfcraft.deb && \
+    apt-get autoclean && \
+    rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
+
+COPY selkies/root/ /
+
+RUN chmod 0755 /defaults/autostart_wayland /defaults/autostart && \
+    install -d -o abc -g abc /config/Downloads/Documents
+
+VOLUME /config
+EXPOSE 3001
