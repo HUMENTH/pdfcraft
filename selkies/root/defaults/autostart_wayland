@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Selkies runs this as its desktop user (abc).
+exec /usr/bin/pdfcraft
