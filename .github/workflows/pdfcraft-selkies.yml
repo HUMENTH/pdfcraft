@@ -32,6 +32,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # Prevent temporary actions/checkout repositories from emitting Git's master-branch hint.
+  GIT_CONFIG_COUNT: "1"
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: "0"
   RUST_BACKTRACE: "1"
@@ -85,11 +89,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-            | sh -s -- -y --profile minimal --default-toolchain 1.95.0
+          export PATH="$HOME/.cargo/bin:$PATH"
+          if ! command -v rustup >/dev/null 2>&1; then
+            echo "::error::rustup is not available on the hosted ARM64 runner"
+            exit 1
+          fi
+          # Reuse the runner's rustup installation instead of rerunning rustup-init.
+          # rustup-init warns when the runner already has ~/.rustup/settings.toml.
+          rustup toolchain install 1.95.0 --profile minimal
+          rustup default 1.95.0
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
-          "$HOME/.cargo/bin/rustc" --version
-          "$HOME/.cargo/bin/cargo" --version
+          rustc --version
+          cargo --version
 
       - name: Cache Cargo build output
         uses: Swatinem/rust-cache@v2

@@ -187,6 +187,10 @@ egui_extras = { git = "https://github.com/storytold/egui.git", rev = "725a39fca9
 egui_kittest = { git = "https://github.com/storytold/egui.git", rev = "725a39fca940f77149ffbb9c58eef405a16997bc" }
 egui_system_font_provider = { git = "https://github.com/storytold/egui.git", rev = "725a39fca940f77149ffbb9c58eef405a16997bc" }
 eframe = { git = "https://github.com/storytold/egui.git", rev = "725a39fca940f77149ffbb9c58eef405a16997bc" }
+# `egui_demo_lib` and the optional eframe-feature crates below are intentionally pinned
+# for alternate/dev builds. The production app does not enable eframe `inspection` or
+# `system_fonts` features, and does not build the demo crate, so Cargo may report these
+# patches as unused during the Selkies release build. Keep the pins for builds that opt in.
 egui_demo_lib = { git = "https://github.com/storytold/egui.git", rev = "725a39fca940f77149ffbb9c58eef405a16997bc" }
 egui_inspection = { git = "https://github.com/storytold/egui.git", rev = "725a39fca940f77149ffbb9c58eef405a16997bc" }
 winit = { git = "https://github.com/storytold/winit.git", rev = "a517b3846ee8457d84ee4975110bfda6797c44dc" }
