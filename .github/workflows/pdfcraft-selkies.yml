@@ -22,6 +22,7 @@ on:
       - "Cargo.lock"
       - "craft-i18n.rev"
       - "ATTRIBUTION.toml"
+      - "vendor/**"
 
 permissions:
   contents: read
