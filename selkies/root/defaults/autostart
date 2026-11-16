@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# X11 fallback for Selkies sessions without Wayland.
+exec /usr/bin/pdfcraft
