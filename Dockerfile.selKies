@@ -28,4 +28,4 @@ RUN chmod 0755 /defaults/autostart_wayland /defaults/autostart && \
     install -d -o abc -g abc /config/Downloads/Documents
 
 VOLUME /config
-EXPOSE 3001
+EXPOSE 3000 3001
