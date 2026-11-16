@@ -48,7 +48,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout this fork and branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.ref }}
           persist-credentials: false
@@ -96,7 +96,7 @@ jobs:
           cache-all-crates: true
 
       - name: Check out pinned craft-fonts input
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           repository: storytold/craft-fonts
           ref: ${{ env.CRAFT_FONTS_REF }}
@@ -117,7 +117,7 @@ jobs:
           echo "rev=$REV" >> "$GITHUB_OUTPUT"
 
       - name: Check out craft-i18n at repository pin
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           repository: storytold/craft-i18n
           ref: ${{ steps.i18n-pin.outputs.rev }}
@@ -187,17 +187,17 @@ jobs:
           echo "tag=$VERSION-selkies-$SHORT_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4.4.1
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push immutable ARM64 image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7.4.0
         with:
           context: .
           file: Dockerfile.selKies
@@ -223,6 +223,38 @@ jobs:
             --tag "$IMAGE:latest" \
             "$IMAGE:$IMMUTABLE_TAG"
 
+      - name: Smoke-test published ARM64 image contents
+        shell: bash
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          docker pull --platform linux/arm64 "$IMAGE:$TAG"
+          docker run --rm --platform linux/arm64 \
+            --entrypoint /bin/bash "$IMAGE:$TAG" \
+            -euo pipefail -c '
+              echo "Checking Selkies desktop account..."
+              id abc
+              getent passwd abc >/dev/null
+
+              echo "Checking PDFCraft executable..."
+              test -x /usr/bin/pdfcraft
+
+              echo "Checking OCR model assets and licence notices..."
+              test -s /usr/share/pdfcraft/models/text-detection.onnx
+              test -s /usr/share/pdfcraft/models/text-recognition.onnx
+              test -s /usr/share/pdfcraft/models/ATTRIBUTION.txt
+              test -s /usr/share/pdfcraft/models/text-detection.onnx.LICENCE.txt
+              test -s /usr/share/pdfcraft/models/text-recognition.onnx.LICENCE.txt
+
+              echo "Checking Selkies startup hooks..."
+              test -x /defaults/autostart_wayland
+              test -x /defaults/autostart
+
+              echo "PDFCraft Selkies image content smoke test passed."
+            '
+
       - name: Verify published image is ARM64
         shell: bash
         env:
@@ -239,7 +271,7 @@ jobs:
           '
 
       - name: Upload Debian package as workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: pdfcraft-selkies-deb-${{ steps.meta.outputs.version }}-${{ steps.meta.outputs.short_sha }}
           path: dist/selkies/pdfcraft-*-selkies-linux-aarch64.deb
