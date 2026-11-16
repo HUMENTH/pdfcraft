@@ -6,7 +6,7 @@ ENV TITLE="PDFCraft" \
     PIXELFLUX_WAYLAND=true
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       libxkbcommon0 libvulkan1 libegl1 libwayland-client0 \
       libx11-6 libx11-xcb1 libxcursor1 libxi6 libxrandr2 \
       mesa-vulkan-drivers xdg-desktop-portal cups-client \
@@ -16,7 +16,7 @@ RUN apt-get update && \
 
 COPY dist/selkies/pdfcraft-*-selkies-linux-aarch64.deb /tmp/pdfcraft.deb
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends /tmp/pdfcraft.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends /tmp/pdfcraft.deb && \
     rm -f /tmp/pdfcraft.deb && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
